@@ -14,9 +14,16 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import data.Packet;
+import data.PacketHandler;
+
+
+
 
 
 /**
@@ -33,13 +40,14 @@ public class Maestro {
 	static Object p=new Object();
 	public static String log = "";
 	public static String ruta = "./resultados.txt";
+	private static ThreadedUDPServer server;
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args)throws Exception {
 		// TODO Auto-generated method stub
-
+/*
 		System.out.println(MAESTRO + "Establezca puerto de conexion:");
 		InputStreamReader isr = new InputStreamReader(System.in);
 		BufferedReader br = new BufferedReader(isr);
@@ -128,10 +136,71 @@ public class Maestro {
 
 		}
 
+*/
 
+		server= new ThreadedUDPServer(1337);
+		server.receive(new PacketHandler() {
 
+			@Override
+			public void process(Packet packet) {
+				String data = new String(packet.getData()).trim();
+		
+				if(data.equals("Preparado")) {
+					ThreadedUDPServer.CLIENTS.add(packet.getConnection());
+					server.send(new Packet("OK".getBytes(), packet.getAddr(), packet.getPort()));
+					System.out.println("Recibiendo: ");
+					System.out.println(new String(packet.getData()).trim());
+					 data = new String(packet.getData()).trim();
+					 System.out.println("Elija un archivo para enviar (1 o 2):");
+						System.out.println("1.Archivo de texto 250MB");
+						System.out.println("2.Archivo de texto 100MB");
+					 BufferedReader reader =
+			                   new BufferedReader(new InputStreamReader(System.in));
+			        String archivo;
+					try {
+						archivo = reader.readLine();
+						String send="";
+
+						if(archivo.equals("1")) {
+
+							send="./data/Archivo1.txt";
+							log+="Archivo Enviado: archivo1 \r\n";
+						}else {
+							send="./data/Archivo2.txt";
+							log+="Archivo Enviado: archivo2 \r\n";
+						}
+
+						File sendFile = new File(send); 
+						byte[] bytesArray = new byte[(int) sendFile.length()]; 
+						System.out.println(bytesArray.length);
+					
+						for(int i=0;i<bytesArray.length;i+=1024) {
+							byte[] temp=Arrays.copyOfRange(bytesArray, i, i+1024);
+						
+							server.send(new Packet(temp, packet.getAddr(), packet.getPort()));
+						}
+						
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
+				if(data.equals("Recibido")) {
+					server.send(new Packet("Fin".getBytes(), packet.getAddr(), packet.getPort()));
+					System.out.println(new String(packet.getData()).trim());
+					 data = new String(packet.getData()).trim();
+					 
+				}
+			}
+			
+		});
+	
 	}
 
+	public static void reply(Packet packet) {
+		server.broadcast(new String(packet.toString()).getBytes());
+	}
 	public static void dormir() {
 		try {
 			synchronized(o) {
