@@ -22,7 +22,7 @@ public class ThreadedUDPServer implements Runnable {
 	private int port;
 	private DatagramSocket socket;
 	private boolean running;
-	
+	private boolean bool=false;
 	/* Threads */
 	private Thread send, receive, process;
 	
@@ -79,6 +79,17 @@ public class ThreadedUDPServer implements Runnable {
 				);
 	
 				try {
+					if(!bool) {
+						DatagramPacket dgpack1 = new DatagramPacket(
+								"OK".getBytes(), 
+								packet.getData().length, 
+								packet.getAddr(), 
+								packet.getPort()
+						);
+						socket.send(dgpack1);
+						bool=true;
+					}
+					
 					socket.send(dgpack);
 				} catch (IOException e) {
 					System.out.println(e.getMessage());

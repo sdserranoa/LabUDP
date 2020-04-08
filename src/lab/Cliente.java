@@ -92,7 +92,9 @@ public class Cliente extends Thread {
 				System.out.println("Recibiendo: ");
 				
 				System.out.println(packet.getData());
+				
 				if(new String(packet.getData()).trim().equals("Fin")) {
+					
 					client.impr();
 					
 				}

@@ -77,7 +77,7 @@ public class ThreadedUDPClient implements Runnable {
 						e.printStackTrace();
 					}
 					System.out.println("Numero de paquetes recibidos: "+ dgpacket.getLength());
-					System.out.println(dgpacket.getData());
+				
 					arr.add(dgpacket.getData());
 					handler.process(new Packet(dgpacket.getData(), dgpacket.getAddress(), dgpacket.getPort()));
 				}
@@ -99,15 +99,21 @@ public class ThreadedUDPClient implements Runnable {
 		OutputStream os;
 		try {
 			os = new FileOutputStream(file);
-			byte[] valorClaro=new byte[1];
-			
-			for(int i=0;i<arr.size()-1;i++) {
-				
-				valorClaro=concat(valorClaro,(byte[])arr.get(i));
+			byte[] valorClaro=new byte[arr.size()*1024];
+			int contador=0;
+			for(int i=2;i<arr.size()-1;i++) {
+				byte[] act=((byte[])arr.get(i));
+				for(int j=0;j<act.length;j++) {
+					valorClaro[contador]=act[j];
+					contador++;
+				}
 				
 				
 			}
 			os.write(valorClaro);
+			System.out.println("tamaño: "+ valorClaro.length);
+			
+			
 			os.flush();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -115,11 +121,10 @@ public class ThreadedUDPClient implements Runnable {
 		} 
 	}
 	public static  byte[] concat(byte[] first, byte[] second) {
-		System.out.println("1: "+first);
-		System.out.println("2: "+second);
+	
 		  byte[] result = Arrays.copyOf(first, first.length + second.length);
 		  System.arraycopy(second, 0, result, first.length, second.length);
-		  System.out.println("3: "+result);
+		 
 		  return result;
 		}
 	@Override
