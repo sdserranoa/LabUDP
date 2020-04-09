@@ -78,18 +78,7 @@ public class ThreadedUDPServer implements Runnable {
 						packet.getPort()
 				);
 	
-				try {
-					if(!bool) {
-						DatagramPacket dgpack1 = new DatagramPacket(
-								"OK".getBytes(), 
-								packet.getData().length, 
-								packet.getAddr(), 
-								packet.getPort()
-						);
-						socket.send(dgpack1);
-						bool=true;
-					}
-					
+				try {					
 					socket.send(dgpack);
 				} catch (IOException e) {
 					System.out.println(e.getMessage());

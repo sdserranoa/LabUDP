@@ -110,15 +110,25 @@ public class ThreadedUDPClient implements Runnable {
 				
 				
 			}
-			os.write(valorClaro);
-			System.out.println("tamaño: "+ valorClaro.length);
-			
-			
+			os.write(valorClaro);			
 			os.flush();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
+	}
+	public byte[] compararHash()
+	{
+		byte[] valorClaro=new byte[arr.size()*1024];
+		int contador=0;
+		for(int i=2;i<arr.size()-1;i++) {
+			byte[] act=((byte[])arr.get(i));
+			for(int j=0;j<act.length;j++) {
+				valorClaro[contador]=act[j];
+				contador++;
+			}
+		}
+		return valorClaro;
 	}
 	public static  byte[] concat(byte[] first, byte[] second) {
 	
